@@ -941,9 +941,9 @@ User Service  Product Service
 
 ---
 
-**Muallif**: Your Name  
+**Muallif**: Oybek Abdujabborov  
 **Versiya**: 1.0.0  
-**Sana**: 2026  
+**Sana**: 2026-010-01  
 **License**: MIT
 
 ---
