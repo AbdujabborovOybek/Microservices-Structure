@@ -1,417 +1,85 @@
-# 🚀 Node.js Express Microservices Project Structure
+# 🚀 Node.js Express Microservices Monorepo (PM2 + Docker + DB Examples)
 
-> **PM2 bilan professional monorepo arxitekturasi**
+> **PM2 + Docker Compose bilan productionga yaqin microservice monorepo.**  
+> Ushbu hujjat: **strukturani**, **PM2 ecosystem**, **Docker/Docker Compose**, hamda **MongoDB / PostgreSQL / MySQL (mysql2)** bilan ishlash **namunalarini** va **ishga tushirish jarayonini** batafsil ko‘rsatadi.
 
 ---
 
-## 📁 To'liq Folder Strukturasi
+## ✅ 0) Talablar (Prerequisites)
+
+Quyidagilar o‘rnatilgan bo‘lsin:
+
+- **Node.js** (LTS tavsiya)
+- **Docker** va **Docker Compose**
+- (Ixtiyoriy) **PM2** global: `npm i -g pm2`
+- (Ixtiyoriy) **pnpm** yoki **npm** (workspaces)
+
+---
+
+## 📁 1) Minimal Project Strukturasi (monorepo)
+
+> Siz bergan strukturani saqlagan holda, Docker/PM2 uchun kerakli qo‘shimcha fayllar ham kiritildi.
 
 ```
 microservices-project/
-│
-├── services/                          # 🎯 Barcha microservislar
-│   │
-│   ├── api-gateway/                   # 🚪 API Gateway (Port: 3000)
-│   │   ├── src/
-│   │   │   ├── config/
-│   │   │   │   ├── index.js          # Asosiy config (PORT, ENV, etc)
-│   │   │   │   └── services.js       # Servislarning URL manzillari
-│   │   │   │
-│   │   │   ├── middlewares/
-│   │   │   │   ├── auth.js           # JWT token tekshirish
-│   │   │   │   ├── rateLimiter.js    # Rate limiting
-│   │   │   │   ├── requestLogger.js  # Request logging
-│   │   │   │   ├── cors.js           # CORS sozlamalari
-│   │   │   │   └── errorHandler.js   # Global error handler
-│   │   │   │
-│   │   │   ├── routes/
-│   │   │   │   ├── index.js          # Barcha routelarni yig'ish
-│   │   │   │   ├── userRoutes.js     # /api/users → user-service
-│   │   │   │   ├── productRoutes.js  # /api/products → product-service
-│   │   │   │   ├── orderRoutes.js    # /api/orders → order-service
-│   │   │   │   ├── paymentRoutes.js  # /api/payments → payment-service
-│   │   │   │   └── healthRoutes.js   # Health check endpoint
-│   │   │   │
-│   │   │   ├── utils/
-│   │   │   │   ├── httpClient.js     # Axios instance (servisga murojaat)
-│   │   │   │   ├── responseHandler.js # Standart response format
-│   │   │   │   ├── logger.js         # Winston logger
-│   │   │   │   └── validator.js      # Request validation
-│   │   │   │
-│   │   │   ├── app.js                # Express app configuration
-│   │   │   └── server.js             # Server ishga tushirish
-│   │   │
-│   │   ├── tests/
-│   │   │   ├── unit/
-│   │   │   └── integration/
-│   │   │
-│   │   ├── .env
-│   │   ├── .env.example
-│   │   ├── .gitignore
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   ├── user-service/                  # 👤 User Service (Port: 3001)
-│   │   ├── src/
-│   │   │   ├── config/
-│   │   │   │   ├── index.js          # Environment config
-│   │   │   │   ├── database.js       # MongoDB/PostgreSQL connection
-│   │   │   │   └── redis.js          # Redis cache (ixtiyoriy)
-│   │   │   │
-│   │   │   ├── controllers/
-│   │   │   │   ├── authController.js # register, login, logout, refresh
-│   │   │   │   └── userController.js # getProfile, updateProfile, deleteUser
-│   │   │   │
-│   │   │   ├── models/
-│   │   │   │   └── User.js           # User schema (Mongoose/Sequelize)
-│   │   │   │
-│   │   │   ├── routes/
-│   │   │   │   ├── index.js
-│   │   │   │   ├── authRoutes.js     # POST /auth/register, /auth/login
-│   │   │   │   └── userRoutes.js     # GET/PUT/DELETE /users/:id
-│   │   │   │
-│   │   │   ├── services/
-│   │   │   │   ├── authService.js    # Business logic (register, login)
-│   │   │   │   └── userService.js    # Business logic (CRUD)
-│   │   │   │
-│   │   │   ├── middlewares/
-│   │   │   │   ├── auth.js           # Protect routes
-│   │   │   │   ├── validate.js       # Request validation (Joi/Yup)
-│   │   │   │   └── errorHandler.js   # Error handling
-│   │   │   │
-│   │   │   ├── utils/
-│   │   │   │   ├── jwt.js            # generateToken, verifyToken
-│   │   │   │   ├── bcrypt.js         # hashPassword, comparePassword
-│   │   │   │   ├── validators.js     # Validation schemas
-│   │   │   │   ├── logger.js         # Winston logger
-│   │   │   │   └── sendEmail.js      # Email utility (ixtiyoriy)
-│   │   │   │
-│   │   │   ├── events/               # Event-driven (ixtiyoriy)
-│   │   │   │   ├── publishers/
-│   │   │   │   │   └── userPublisher.js  # USER_CREATED event
-│   │   │   │   └── subscribers/
-│   │   │   │       └── userSubscriber.js # Listen to events
-│   │   │   │
-│   │   │   ├── app.js
-│   │   │   └── server.js
-│   │   │
-│   │   ├── tests/
-│   │   │   ├── unit/
-│   │   │   │   ├── authService.test.js
-│   │   │   │   └── userService.test.js
-│   │   │   └── integration/
-│   │   │       ├── auth.test.js
-│   │   │       └── user.test.js
-│   │   │
-│   │   ├── .env
-│   │   ├── .env.example
-│   │   ├── .gitignore
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   ├── product-service/               # 📦 Product Service (Port: 3002)
-│   │   ├── src/
-│   │   │   ├── config/
-│   │   │   │   ├── index.js
-│   │   │   │   └── database.js
-│   │   │   │
-│   │   │   ├── controllers/
-│   │   │   │   ├── productController.js  # getAllProducts, getProduct, createProduct, updateProduct, deleteProduct
-│   │   │   │   └── categoryController.js # Category CRUD
-│   │   │   │
-│   │   │   ├── models/
-│   │   │   │   ├── Product.js        # name, price, description, stock, category
-│   │   │   │   └── Category.js       # name, description
-│   │   │   │
-│   │   │   ├── routes/
-│   │   │   │   ├── index.js
-│   │   │   │   ├── productRoutes.js  # GET/POST/PUT/DELETE /products
-│   │   │   │   └── categoryRoutes.js # GET/POST/PUT/DELETE /categories
-│   │   │   │
-│   │   │   ├── services/
-│   │   │   │   ├── productService.js # Business logic
-│   │   │   │   └── categoryService.js
-│   │   │   │
-│   │   │   ├── middlewares/
-│   │   │   │   ├── auth.js           # Verify JWT
-│   │   │   │   ├── validate.js
-│   │   │   │   └── errorHandler.js
-│   │   │   │
-│   │   │   ├── utils/
-│   │   │   │   ├── validators.js
-│   │   │   │   ├── logger.js
-│   │   │   │   └── imageUpload.js    # Multer/Cloudinary (ixtiyoriy)
-│   │   │   │
-│   │   │   ├── events/
-│   │   │   │   ├── publishers/
-│   │   │   │   │   └── productPublisher.js  # PRODUCT_CREATED
-│   │   │   │   └── subscribers/
-│   │   │   │
-│   │   │   ├── app.js
-│   │   │   └── server.js
-│   │   │
-│   │   ├── tests/
-│   │   ├── .env
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   ├── order-service/                 # 🛒 Order Service (Port: 3003)
-│   │   ├── src/
-│   │   │   ├── config/
-│   │   │   │   ├── index.js
-│   │   │   │   └── database.js
-│   │   │   │
-│   │   │   ├── controllers/
-│   │   │   │   └── orderController.js # createOrder, getOrders, getOrder, updateOrderStatus, cancelOrder
-│   │   │   │
-│   │   │   ├── models/
-│   │   │   │   └── Order.js          # userId, products[], totalPrice, status, paymentStatus
-│   │   │   │
-│   │   │   ├── routes/
-│   │   │   │   ├── index.js
-│   │   │   │   └── orderRoutes.js    # GET/POST /orders
-│   │   │   │
-│   │   │   ├── services/
-│   │   │   │   └── orderService.js   # Business logic + call product/payment service
-│   │   │   │
-│   │   │   ├── middlewares/
-│   │   │   │   ├── auth.js
-│   │   │   │   ├── validate.js
-│   │   │   │   └── errorHandler.js
-│   │   │   │
-│   │   │   ├── utils/
-│   │   │   │   ├── httpClient.js     # Call other services
-│   │   │   │   ├── validators.js
-│   │   │   │   └── logger.js
-│   │   │   │
-│   │   │   ├── events/
-│   │   │   │   ├── publishers/
-│   │   │   │   │   └── orderPublisher.js  # ORDER_CREATED, ORDER_COMPLETED
-│   │   │   │   └── subscribers/
-│   │   │   │       └── paymentSubscriber.js # Listen PAYMENT_SUCCESS
-│   │   │   │
-│   │   │   ├── app.js
-│   │   │   └── server.js
-│   │   │
-│   │   ├── tests/
-│   │   ├── .env
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   ├── payment-service/               # 💳 Payment Service (Port: 3004)
-│   │   ├── src/
-│   │   │   ├── config/
-│   │   │   │   ├── index.js
-│   │   │   │   ├── database.js
-│   │   │   │   └── stripe.js         # Stripe/PayPal config
-│   │   │   │
-│   │   │   ├── controllers/
-│   │   │   │   └── paymentController.js # processPayment, getPaymentStatus, refund
-│   │   │   │
-│   │   │   ├── models/
-│   │   │   │   └── Payment.js        # orderId, amount, status, method, transactionId
-│   │   │   │
-│   │   │   ├── routes/
-│   │   │   │   ├── index.js
-│   │   │   │   └── paymentRoutes.js  # POST /payments, GET /payments/:id
-│   │   │   │
-│   │   │   ├── services/
-│   │   │   │   ├── paymentService.js # Business logic
-│   │   │   │   └── stripeService.js  # Stripe integration
-│   │   │   │
-│   │   │   ├── middlewares/
-│   │   │   │   ├── auth.js
-│   │   │   │   ├── validate.js
-│   │   │   │   └── errorHandler.js
-│   │   │   │
-│   │   │   ├── utils/
-│   │   │   │   ├── validators.js
-│   │   │   │   └── logger.js
-│   │   │   │
-│   │   │   ├── events/
-│   │   │   │   ├── publishers/
-│   │   │   │   │   └── paymentPublisher.js  # PAYMENT_SUCCESS, PAYMENT_FAILED
-│   │   │   │   └── subscribers/
-│   │   │   │       └── orderSubscriber.js   # Listen ORDER_CREATED
-│   │   │   │
-│   │   │   ├── app.js
-│   │   │   └── server.js
-│   │   │
-│   │   ├── tests/
-│   │   ├── .env
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   └── notification-service/          # 📧 Notification Service (Port: 3005)
-│       ├── src/
-│       │   ├── config/
-│       │   │   ├── index.js
-│       │   │   ├── email.js          # Nodemailer config
-│       │   │   └── sms.js            # Twilio config (ixtiyoriy)
-│       │   │
-│       │   ├── controllers/
-│       │   │   └── notificationController.js # sendEmail, sendSMS
-│       │   │
-│       │   ├── services/
-│       │   │   ├── emailService.js   # Send email logic
-│       │   │   └── smsService.js     # Send SMS logic
-│       │   │
-│       │   ├── routes/
-│       │   │   ├── index.js
-│       │   │   └── notificationRoutes.js
-│       │   │
-│       │   ├── middlewares/
-│       │   │   └── errorHandler.js
-│       │   │
-│       │   ├── utils/
-│       │   │   ├── templates/        # Email HTML templates
-│       │   │   │   ├── welcome.html
-│       │   │   │   ├── orderConfirmation.html
-│       │   │   │   └── resetPassword.html
-│       │   │   └── logger.js
-│       │   │
-│       │   ├── events/
-│       │   │   └── subscribers/      # Faqat listen qiladi
-│       │   │       ├── userSubscriber.js      # USER_CREATED → send welcome email
-│       │   │       ├── orderSubscriber.js     # ORDER_CREATED → send confirmation
-│       │   │       └── paymentSubscriber.js   # PAYMENT_SUCCESS → send receipt
-│       │   │
-│       │   ├── app.js
-│       │   └── server.js
-│       │
-│       ├── tests/
-│       ├── .env
-│       ├── package.json
-│       └── README.md
-│
-├── shared/                            # 🔄 Umumiy kod (barcha servislar ishlatadi)
-│   ├── middlewares/
-│   │   ├── errorHandler.js           # Global error handler
-│   │   ├── logger.js                 # Winston logger middleware
-│   │   ├── asyncHandler.js           # Async error wrapper
-│   │   └── validateRequest.js        # Request validation
-│   │
-│   ├── utils/
-│   │   ├── jwt.js                    # JWT generate/verify
-│   │   ├── response.js               # Standart response format
-│   │   ├── AppError.js               # Custom Error class
-│   │   ├── logger.js                 # Winston logger config
-│   │   └── redis.js                  # Redis client (ixtiyoriy)
-│   │
-│   ├── constants/
-│   │   ├── httpStatus.js             # 200, 201, 400, 401, 404, 500...
-│   │   ├── errorMessages.js          # Standart error messages
-│   │   ├── events.js                 # Event names (USER_CREATED, ORDER_CREATED...)
-│   │   └── roles.js                  # USER, ADMIN, SELLER...
-│   │
-│   ├── config/
-│   │   ├── messageQueue.js           # RabbitMQ/Redis Pub/Sub config
-│   │   └── database.js               # Database utilities
-│   │
-│   └── package.json                  # Shared dependencies
-│
-├── config/                            # ⚙️ Global konfiguratsiya
-│   ├── pm2/
-│   │   └── ecosystem.config.js       # PM2 config (barcha servislar)
-│   │
-│   └── nginx/                         # Nginx reverse proxy (ixtiyoriy)
-│       └── nginx.conf                # Load balancing config
-│
-├── scripts/                           # 🔧 Automation scripts
-│   ├── setup.sh                      # Initial setup (npm install hamma joyda)
-│   ├── start-all.sh                  # pm2 start ecosystem.config.js
-│   ├── stop-all.sh                   # pm2 stop all
-│   ├── restart-all.sh                # pm2 restart all
-│   ├── logs.sh                       # pm2 logs
-│   ├── delete-all.sh                 # pm2 delete all
-│   ├── seed-db.sh                    # Database seed data
-│   └── db-migrate.sh                 # Run migrations
-│
-├── logs/                              # 📝 PM2 logs (auto-generated)
-│   ├── api-gateway/
-│   │   ├── error.log
-│   │   └── out.log
-│   ├── user-service/
-│   ├── product-service/
-│   ├── order-service/
-│   ├── payment-service/
-│   └── notification-service/
-│
-├── docs/                              # 📚 Dokumentatsiya
-│   ├── API.md                        # API endpoints documentation
-│   ├── ARCHITECTURE.md               # Arxitektura tushuntirish
-│   ├── SETUP.md                      # Setup instructions
-│   ├── DEPLOYMENT.md                 # Deployment guide
-│   ├── CONTRIBUTING.md               # Contribution guidelines
-│   └── diagrams/                     # Architecture diagrams
-│       ├── microservices-flow.png
-│       └── database-schema.png
-│
-├── .gitignore                         # Git ignore file
-├── .env.example                       # Environment variables example
-├── .prettierrc                        # Code formatting
-├── .eslintrc.js                       # Linting rules
-├── package.json                       # Root package.json (scripts)
-├── lerna.json                         # Lerna config (ixtiyoriy)
-├── README.md                          # Main README
-└── LICENSE                            # License file
+├─ services/
+│  ├─ api-gateway/
+│  ├─ user-service/
+│  ├─ product-service/
+│  ├─ order-service/
+│  ├─ payment-service/
+│  └─ notification-service/
+├─ shared/
+├─ config/
+│  ├─ pm2/ecosystem.config.js
+│  └─ nginx/nginx.conf              # ixtiyoriy
+├─ scripts/
+├─ logs/
+├─ docker/
+│  ├─ docker-compose.dev.yml        # development (local PM2 yoki nodemon)
+│  ├─ docker-compose.prod.yml       # production (docker + pm2)
+│  └─ .env.docker.example
+├─ .env.example
+├─ package.json
+└─ README.md
 ```
 
 ---
 
-## 📦 Root package.json
+## 🧠 2) Workspaces (Root package.json) tavsiya
+
+> Sizning root `package.json`ingiz yaxshi. Workspaces ishlatilsa, **bitta komandada** hamma servis dependency o‘rnatiladi.
+
+**Root `package.json` (qisqa):**
 
 ```json
 {
   "name": "microservices-project",
-  "version": "1.0.0",
-  "description": "Node.js Express Microservices Architecture with PM2",
-  "main": "index.js",
-  "scripts": {
-    "start": "pm2 start config/pm2/ecosystem.config.js",
-    "start:prod": "pm2 start config/pm2/ecosystem.config.js --env production",
-    "stop": "pm2 stop all",
-    "restart": "pm2 restart all",
-    "delete": "pm2 delete all",
-    "logs": "pm2 logs",
-    "monit": "pm2 monit",
-    "setup": "bash scripts/setup.sh",
-    "dev:gateway": "cd services/api-gateway && npm run dev",
-    "dev:user": "cd services/user-service && npm run dev",
-    "dev:product": "cd services/product-service && npm run dev",
-    "dev:order": "cd services/order-service && npm run dev",
-    "dev:payment": "cd services/payment-service && npm run dev",
-    "dev:notification": "cd services/notification-service && npm run dev",
-    "test": "npm run test --workspaces",
-    "test:unit": "npm run test:unit --workspaces",
-    "test:integration": "npm run test:integration --workspaces",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
-  },
+  "private": true,
   "workspaces": ["services/*", "shared"],
-  "keywords": ["microservices", "nodejs", "express", "pm2", "monorepo"],
-  "author": "Your Name",
-  "license": "MIT",
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.1",
-    "prettier": "^3.2.5",
-    "pm2": "^5.3.1",
-    "lerna": "^8.1.2"
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "node -e \"console.log('Dev: har bir service alohida')\"",
+    "pm2:start": "pm2 start config/pm2/ecosystem.config.js",
+    "pm2:stop": "pm2 stop all",
+    "pm2:restart": "pm2 restart all",
+    "pm2:logs": "pm2 logs",
+    "docker:dev": "docker compose -f docker/docker-compose.dev.yml --env-file docker/.env.docker up -d --build",
+    "docker:down": "docker compose -f docker/docker-compose.dev.yml --env-file docker/.env.docker down",
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.docker up -d --build"
   }
 }
 ```
 
 ---
 
-## 🔧 PM2 Ecosystem Config
+## ⚙️ 3) PM2 Ecosystem (Monorepo) — best practice
+
+Siz bergan `ecosystem.config.js` to‘g‘ri. Quyida **healthcheck**, **graceful shutdown**, **log path** kabi kichik tavsiyalar qo‘shilgan.
 
 **File:** `config/pm2/ecosystem.config.js`
 
-```javascript
+```js
 module.exports = {
   apps: [
     {
@@ -419,533 +87,954 @@ module.exports = {
       script: "./services/api-gateway/src/server.js",
       instances: 2,
       exec_mode: "cluster",
-      watch: false,
-      env: {
-        NODE_ENV: "development",
-        PORT: 3000,
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3000,
-      },
+
+      // logs
       error_file: "./logs/api-gateway/error.log",
       out_file: "./logs/api-gateway/out.log",
-      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+
+      // restart policy
       autorestart: true,
       max_memory_restart: "500M",
       min_uptime: "10s",
       max_restarts: 10,
+
+      env: { NODE_ENV: "development", PORT: 3000 },
+      env_production: { NODE_ENV: "production", PORT: 3000 },
     },
+
     {
       name: "user-service",
       script: "./services/user-service/src/server.js",
       instances: 1,
       exec_mode: "fork",
-      watch: false,
-      env: {
-        NODE_ENV: "development",
-        PORT: 3001,
-        DB_NAME: "user_db",
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3001,
-        DB_NAME: "user_db",
-      },
       error_file: "./logs/user-service/error.log",
       out_file: "./logs/user-service/out.log",
-      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      merge_logs: true,
       autorestart: true,
       max_memory_restart: "300M",
+      env: { NODE_ENV: "development", PORT: 3001 },
+      env_production: { NODE_ENV: "production", PORT: 3001 },
     },
+
     {
       name: "product-service",
       script: "./services/product-service/src/server.js",
       instances: 1,
       exec_mode: "fork",
-      watch: false,
-      env: {
-        NODE_ENV: "development",
-        PORT: 3002,
-        DB_NAME: "product_db",
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3002,
-        DB_NAME: "product_db",
-      },
       error_file: "./logs/product-service/error.log",
       out_file: "./logs/product-service/out.log",
+      merge_logs: true,
       autorestart: true,
       max_memory_restart: "300M",
+      env: { NODE_ENV: "development", PORT: 3002 },
+      env_production: { NODE_ENV: "production", PORT: 3002 },
     },
+
     {
       name: "order-service",
       script: "./services/order-service/src/server.js",
       instances: 1,
       exec_mode: "fork",
-      env: {
-        NODE_ENV: "development",
-        PORT: 3003,
-        DB_NAME: "order_db",
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3003,
-        DB_NAME: "order_db",
-      },
       error_file: "./logs/order-service/error.log",
       out_file: "./logs/order-service/out.log",
+      merge_logs: true,
       autorestart: true,
+      env: { NODE_ENV: "development", PORT: 3003 },
+      env_production: { NODE_ENV: "production", PORT: 3003 },
     },
+
     {
       name: "payment-service",
       script: "./services/payment-service/src/server.js",
       instances: 1,
       exec_mode: "fork",
-      env: {
-        NODE_ENV: "development",
-        PORT: 3004,
-        DB_NAME: "payment_db",
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3004,
-        DB_NAME: "payment_db",
-      },
       error_file: "./logs/payment-service/error.log",
       out_file: "./logs/payment-service/out.log",
+      merge_logs: true,
       autorestart: true,
+      env: { NODE_ENV: "development", PORT: 3004 },
+      env_production: { NODE_ENV: "production", PORT: 3004 },
     },
+
     {
       name: "notification-service",
       script: "./services/notification-service/src/server.js",
       instances: 1,
       exec_mode: "fork",
-      env: {
-        NODE_ENV: "development",
-        PORT: 3005,
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3005,
-      },
       error_file: "./logs/notification-service/error.log",
       out_file: "./logs/notification-service/out.log",
+      merge_logs: true,
       autorestart: true,
+      env: { NODE_ENV: "development", PORT: 3005 },
+      env_production: { NODE_ENV: "production", PORT: 3005 },
     },
   ],
 };
 ```
 
----
-
-## 🚀 PM2 Komandalar
-
-### Asosiy komandalar
+**PM2 asosiy komandalar:**
 
 ```bash
-# Barcha servislarni ishga tushirish
 pm2 start config/pm2/ecosystem.config.js
-
-# Production mode
 pm2 start config/pm2/ecosystem.config.js --env production
-
-# Bitta servisni ishga tushirish
-pm2 start config/pm2/ecosystem.config.js --only user-service
-
-# Status ko'rish
 pm2 status
-pm2 list
-
-# Loglarni ko'rish
-pm2 logs                    # Barcha servislar
-pm2 logs user-service       # Bitta servis
-pm2 logs --lines 100        # Oxirgi 100 qator
-
-# Restart
+pm2 logs
 pm2 restart all
-pm2 restart user-service
-pm2 restart config/pm2/ecosystem.config.js
-
-# Stop
 pm2 stop all
-pm2 stop user-service
-
-# Delete
 pm2 delete all
-pm2 delete user-service
-
-# Monitoring
-pm2 monit                   # Real-time monitoring
-
-# Auto restart on boot (server restart bo'lganda)
-pm2 startup
 pm2 save
-
-# Flush logs
-pm2 flush
-
-# Reload (0 downtime restart - cluster mode uchun)
-pm2 reload all
+pm2 startup
 ```
 
 ---
 
-## 📋 Har bir Servisning package.json namunasi
+## 🐳 4) Docker: Dev va Prod uchun “toza” yondashuv
 
-**File:** `services/user-service/package.json`
+### 4.1) Qachon Docker kerak?
 
-```json
-{
-  "name": "user-service",
-  "version": "1.0.0",
-  "description": "User management microservice",
-  "main": "src/server.js",
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "jest",
-    "test:unit": "jest --testPathPattern=tests/unit",
-    "test:integration": "jest --testPathPattern=tests/integration",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^8.1.1",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.4.1",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "joi": "^17.12.0",
-    "winston": "^3.11.0",
-    "nodemailer": "^6.9.8"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.3",
-    "jest": "^29.7.0",
-    "supertest": "^6.3.4",
-    "@types/jest": "^29.5.11"
-  }
-}
-```
+- **Local dev**: DBlarni Dockerda (Mongo/Postgres/MySQL) ko‘tarib, node servislari lokalda ishlashi (eng tez).
+- **Prod/Stage**: hamma servislari + DB + reverse-proxy docker-compose’da.
+
+Quyida ikkita compose:
+
+- `docker-compose.dev.yml` — **DBlar dockerda**, servislar lokalda (PM2 yoki nodemon).
+- `docker-compose.prod.yml` — **servislar ham dockerda**, ichida PM2.
 
 ---
 
-## 🔐 .env.example
+## 🧩 5) Docker Compose (DEV) — faqat DBlar
 
-**File:** `.env.example` (root level)
+**File:** `docker/docker-compose.dev.yml`
+
+> Bu usulda siz Node servislarni kompyuteringizda PM2/nodemon bilan yuritasiz, DBlar esa dockerda.
+
+```yaml
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: ms_mongo
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_ROOT_USER:-root}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASS:-rootpass}"
+    volumes:
+      - mongo_data:/data/db
+
+  postgres:
+    image: postgres:16
+    container_name: ms_postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DB:-app_db}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8
+    container_name: ms_mysql
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootpass}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-app_db}"
+      MYSQL_USER: "${MYSQL_USER:-app}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-apppass}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mongo_data:
+  postgres_data:
+  mysql_data:
+```
+
+### 5.1) docker env (DEV)
+
+**File:** `docker/.env.docker` (namuna)
 
 ```env
-# Node Environment
-NODE_ENV=development
+MONGO_PORT=27017
+MONGO_ROOT_USER=root
+MONGO_ROOT_PASS=rootpass
 
-# API Gateway
-GATEWAY_PORT=3000
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=app_db
 
-# User Service
-USER_SERVICE_PORT=3001
-USER_DB_URI=mongodb://localhost:27017/user_db
-USER_JWT_SECRET=your-super-secret-jwt-key-change-this
-USER_JWT_EXPIRE=7d
+MYSQL_PORT=3306
+MYSQL_ROOT_PASSWORD=rootpass
+MYSQL_DATABASE=app_db
+MYSQL_USER=app
+MYSQL_PASSWORD=apppass
+```
 
-# Product Service
-PRODUCT_SERVICE_PORT=3002
-PRODUCT_DB_URI=mongodb://localhost:27017/product_db
+### 5.2) DEV compose ishga tushirish
 
-# Order Service
-ORDER_SERVICE_PORT=3003
-ORDER_DB_URI=mongodb://localhost:27017/order_db
+```bash
+# rootda
+cp docker/.env.docker.example docker/.env.docker 2>/dev/null || true
+docker compose -f docker/docker-compose.dev.yml --env-file docker/.env.docker up -d
 
-# Payment Service
-PAYMENT_SERVICE_PORT=3004
-PAYMENT_DB_URI=mongodb://localhost:27017/payment_db
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-
-# Notification Service
-NOTIFICATION_SERVICE_PORT=3005
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-
-# Redis (ixtiyoriy - caching uchun)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-# RabbitMQ (ixtiyoriy - message queue uchun)
-RABBITMQ_URL=amqp://localhost:5672
-
-# Logging
-LOG_LEVEL=debug
+# tekshirish
+docker ps
 ```
 
 ---
 
-## 📜 Scripts
+## 🧱 6) Docker Compose (PROD) — hamma servislar dockerda + PM2
 
-### setup.sh
+Bu yondashuvda:
 
-```bash
-#!/bin/bash
+- Har bir servisga Dockerfile beriladi
+- Container ichida **PM2 runtime** bilan node process yuradi
+- `depends_on` bilan DBlar bog‘lanadi
 
-echo "🚀 Microservices Setup Starting..."
+### 6.1) Har bir servis uchun Dockerfile (universal)
 
-# Root dependencies
-echo "📦 Installing root dependencies..."
-npm install
+**Masalan:** `services/user-service/Dockerfile`
 
-# Install dependencies for all services
-echo "📦 Installing service dependencies..."
+```dockerfile
+FROM node:20-alpine
 
-services=("api-gateway" "user-service" "product-service" "order-service" "payment-service" "notification-service")
+WORKDIR /app
 
-for service in "${services[@]}"
-do
-  echo "📦 Installing dependencies for $service..."
-  cd services/$service
-  npm install
-  cd ../..
-done
+# faqat dependency uchun
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install shared dependencies
-echo "📦 Installing shared dependencies..."
-cd shared
-npm install
-cd ..
+# app source
+COPY . .
 
-# Create logs directories
-echo "📁 Creating logs directories..."
-mkdir -p logs/api-gateway
-mkdir -p logs/user-service
-mkdir -p logs/product-service
-mkdir -p logs/order-service
-mkdir -p logs/payment-service
-mkdir -p logs/notification-service
+# PM2 runtime
+RUN npm i -g pm2
 
-# Copy .env.example to .env if not exists
-if [ ! -f .env ]; then
-  echo "📝 Creating .env file..."
-  cp .env.example .env
-  echo "⚠️  Please update .env file with your credentials"
-fi
+ENV NODE_ENV=production
+EXPOSE 3001
 
-echo "✅ Setup completed successfully!"
-echo "🚀 Run 'npm start' to start all services"
+CMD ["pm2-runtime", "src/server.js", "--name", "user-service"]
 ```
 
-### start-all.sh
+> **Eslatma:** monorepo bo‘lgani uchun `npm ci` jarayoni servis ichida ishlaydi. Katta monorepoda optimizatsiya qilish mumkin (root install + pruning), lekin bu hujjat **tushunarli** va **ishga tayyor** variant.
+
+### 6.2) docker-compose.prod.yml (namuna)
+
+**File:** `docker/docker-compose.prod.yml`
+
+```yaml
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: ms_mongo
+    restart: always
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_ROOT_USER:-root}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASS:-rootpass}"
+    volumes:
+      - mongo_data:/data/db
+
+  postgres:
+    image: postgres:16
+    container_name: ms_postgres
+    restart: always
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DB:-app_db}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8
+    container_name: ms_mysql
+    restart: always
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootpass}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-app_db}"
+      MYSQL_USER: "${MYSQL_USER:-app}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-apppass}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api-gateway:
+    build:
+      context: ../services/api-gateway
+    container_name: ms_api_gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      USER_SERVICE_URL: "http://user-service:3001"
+      PRODUCT_SERVICE_URL: "http://product-service:3002"
+      ORDER_SERVICE_URL: "http://order-service:3003"
+      PAYMENT_SERVICE_URL: "http://payment-service:3004"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - payment-service
+
+  user-service:
+    build:
+      context: ../services/user-service
+    container_name: ms_user_service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # Mongo example:
+      MONGO_URI: "mongodb://${MONGO_ROOT_USER:-root}:${MONGO_ROOT_PASS:-rootpass}@mongo:27017/user_db?authSource=admin"
+      # Postgres example (agar user-service Postgres ishlatsa):
+      POSTGRES_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/user_db"
+    depends_on:
+      - mongo
+      - postgres
+
+  product-service:
+    build:
+      context: ../services/product-service
+    container_name: ms_product_service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      MYSQL_URL: "mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-apppass}@mysql:3306/product_db"
+    depends_on:
+      - mysql
+
+  order-service:
+    build:
+      context: ../services/order-service
+    container_name: ms_order_service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      POSTGRES_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/order_db"
+    depends_on:
+      - postgres
+
+  payment-service:
+    build:
+      context: ../services/payment-service
+    container_name: ms_payment_service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      POSTGRES_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/payment_db"
+    depends_on:
+      - postgres
+
+  notification-service:
+    build:
+      context: ../services/notification-service
+    container_name: ms_notification_service
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+
+volumes:
+  mongo_data:
+  postgres_data:
+  mysql_data:
+```
+
+### 6.3) PROD compose ishga tushirish
 
 ```bash
-#!/bin/bash
+# rootda
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.docker up -d --build
 
-echo "🚀 Starting all microservices with PM2..."
+# loglar
+docker logs -f ms_api_gateway
+```
 
+---
+
+## 🗄️ 7) DB bilan ishlash NAMUNALARI (MongoDB, PostgreSQL, MySQL2)
+
+Quyida **minimal, productionga mos** connection + CRUD misollar berilgan.
+
+> **Tavsiya:** Har bir service o‘z DBsiga ega bo‘lsin (decentralized data). Misol:
+>
+> - user-service: MongoDB yoki Postgres
+> - product-service: MySQL
+> - order-service: Postgres
+
+---
+
+# 7.A) MongoDB (Mongoose) — user-service uchun
+
+### 7.A.1) Install
+
+`services/user-service` ichida:
+
+```bash
+npm i mongoose
+```
+
+### 7.A.2) Config: `src/config/database.mongo.js`
+
+```js
+const mongoose = require("mongoose");
+
+async function connectMongo(uri) {
+  mongoose.set("strictQuery", true);
+
+  await mongoose.connect(uri, {
+    autoIndex: false,
+    serverSelectionTimeoutMS: 5000,
+  });
+
+  console.log("✅ MongoDB connected");
+}
+
+async function disconnectMongo() {
+  await mongoose.disconnect();
+  console.log("🛑 MongoDB disconnected");
+}
+
+module.exports = { connectMongo, disconnectMongo };
+```
+
+### 7.A.3) Model: `src/models/User.mongo.js`
+
+```js
+const { Schema, model } = require("mongoose");
+
+const userSchema = new Schema(
+  {
+    email: { type: String, required: true, unique: true, index: true },
+    passwordHash: { type: String, required: true },
+    fullName: { type: String, required: true },
+  },
+  { timestamps: true },
+);
+
+module.exports = model("User", userSchema);
+```
+
+### 7.A.4) Service: `src/services/userService.mongo.js`
+
+```js
+const User = require("../models/User.mongo");
+
+async function createUser({ email, passwordHash, fullName }) {
+  return User.create({ email, passwordHash, fullName });
+}
+
+async function getUserById(id) {
+  return User.findById(id).lean();
+}
+
+async function getUserByEmail(email) {
+  return User.findOne({ email }).lean();
+}
+
+module.exports = { createUser, getUserById, getUserByEmail };
+```
+
+### 7.A.5) Server start: `src/server.js` (qisqa skeleton)
+
+```js
+const express = require("express");
+require("dotenv").config();
+
+const { connectMongo, disconnectMongo } = require("./config/database.mongo");
+
+const app = express();
+app.use(express.json());
+
+app.get("/health", (req, res) =>
+  res.json({ ok: true, service: "user-service" }),
+);
+
+const PORT = process.env.PORT || 3001;
+
+async function bootstrap() {
+  const mongoUri = process.env.MONGO_URI;
+  if (!mongoUri) throw new Error("MONGO_URI is required");
+
+  await connectMongo(mongoUri);
+
+  const server = app.listen(PORT, () => {
+    console.log(`✅ user-service listening on :${PORT}`);
+  });
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    console.log("🛑 Shutting down...");
+    server.close(async () => {
+      await disconnectMongo();
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+}
+
+bootstrap().catch((e) => {
+  console.error("❌ bootstrap error:", e);
+  process.exit(1);
+});
+```
+
+---
+
+# 7.B) PostgreSQL (node-postgres / pg) — order-service uchun
+
+### 7.B.1) Install
+
+`services/order-service` ichida:
+
+```bash
+npm i pg
+```
+
+### 7.B.2) Config: `src/config/database.pg.js`
+
+```js
+const { Pool } = require("pg");
+
+let pool;
+
+function getPgPool() {
+  if (!pool) {
+    const connectionString = process.env.POSTGRES_URL;
+    if (!connectionString) throw new Error("POSTGRES_URL is required");
+
+    pool = new Pool({
+      connectionString,
+      max: 10,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000,
+    });
+  }
+  return pool;
+}
+
+async function pgQuery(text, params) {
+  const p = getPgPool();
+  return p.query(text, params);
+}
+
+async function closePg() {
+  if (pool) await pool.end();
+  pool = null;
+}
+
+module.exports = { pgQuery, closePg };
+```
+
+### 7.B.3) Minimal migration (SQL)
+
+**File:** `services/order-service/sql/001_init.sql`
+
+```sql
+CREATE TABLE IF NOT EXISTS orders (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  total_price NUMERIC(12,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### 7.B.4) Migration run script (oddiy)
+
+**File:** `services/order-service/scripts/migrate.js`
+
+```js
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
+
+const { pgQuery, closePg } = require("../src/config/database.pg");
+
+async function run() {
+  const sqlPath = path.join(__dirname, "..", "sql", "001_init.sql");
+  const sql = fs.readFileSync(sqlPath, "utf8");
+  await pgQuery(sql);
+  console.log("✅ Migration applied:", sqlPath);
+  await closePg();
+}
+
+run().catch((e) => {
+  console.error("❌ migrate error:", e);
+  process.exit(1);
+});
+```
+
+### 7.B.5) Repository: `src/services/orderRepo.pg.js`
+
+```js
+const { pgQuery } = require("../config/database.pg");
+
+async function createOrder({ userId, totalPrice }) {
+  const q = `
+    INSERT INTO orders (user_id, total_price)
+    VALUES ($1, $2)
+    RETURNING id, user_id, status, total_price, created_at
+  `;
+  const r = await pgQuery(q, [userId, totalPrice]);
+  return r.rows[0];
+}
+
+async function listOrders() {
+  const r = await pgQuery("SELECT * FROM orders ORDER BY id DESC LIMIT 50");
+  return r.rows;
+}
+
+module.exports = { createOrder, listOrders };
+```
+
+---
+
+# 7.C) MySQL (mysql2) — product-service uchun
+
+### 7.C.1) Install
+
+`services/product-service` ichida:
+
+```bash
+npm i mysql2
+```
+
+### 7.C.2) Config: `src/config/database.mysql.js`
+
+```js
+const mysql = require("mysql2/promise");
+
+let pool;
+
+function getMysqlPool() {
+  if (!pool) {
+    const url = process.env.MYSQL_URL;
+    if (!url) throw new Error("MYSQL_URL is required");
+
+    pool = mysql.createPool(url, {
+      connectionLimit: 10,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+    });
+  }
+  return pool;
+}
+
+async function mysqlQuery(sql, params = []) {
+  const p = getMysqlPool();
+  const [rows] = await p.execute(sql, params);
+  return rows;
+}
+
+async function closeMysql() {
+  if (pool) await pool.end();
+  pool = null;
+}
+
+module.exports = { mysqlQuery, closeMysql };
+```
+
+### 7.C.3) Init SQL
+
+**File:** `services/product-service/sql/001_init.sql`
+
+```sql
+CREATE TABLE IF NOT EXISTS products (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 7.C.4) Migration script
+
+**File:** `services/product-service/scripts/migrate.js`
+
+```js
+const fs = require("fs");
+const path = require("path");
+require("dotenv").config();
+
+const { mysqlQuery, closeMysql } = require("../src/config/database.mysql");
+
+async function run() {
+  const sqlPath = path.join(__dirname, "..", "sql", "001_init.sql");
+  const sql = fs.readFileSync(sqlPath, "utf8");
+  // mysql2: multi statement bo'lmasa, split qilish mumkin; bu misolda bitta statement
+  await mysqlQuery(sql);
+  console.log("✅ MySQL migration applied:", sqlPath);
+  await closeMysql();
+}
+
+run().catch((e) => {
+  console.error("❌ migrate error:", e);
+  process.exit(1);
+});
+```
+
+### 7.C.5) Repository: `src/services/productRepo.mysql.js`
+
+```js
+const { mysqlQuery } = require("../config/database.mysql");
+
+async function createProduct({ name, price }) {
+  const r = await mysqlQuery(
+    "INSERT INTO products (name, price) VALUES (?, ?)",
+    [name, price],
+  );
+  return { id: r.insertId, name, price };
+}
+
+async function listProducts() {
+  return mysqlQuery("SELECT * FROM products ORDER BY id DESC LIMIT 50");
+}
+
+module.exports = { createProduct, listProducts };
+```
+
+---
+
+## 🔁 8) API Gateway → Service call (axios) minimal
+
+**Gateway install:**
+
+```bash
+cd services/api-gateway
+npm i axios
+```
+
+**File:** `services/api-gateway/src/utils/httpClient.js`
+
+```js
+const axios = require("axios");
+
+function createClient(baseURL) {
+  return axios.create({
+    baseURL,
+    timeout: 5000,
+  });
+}
+
+module.exports = { createClient };
+```
+
+**File:** `services/api-gateway/src/routes/userRoutes.js`
+
+```js
+const express = require("express");
+const { createClient } = require("../utils/httpClient");
+
+const router = express.Router();
+const userClient = createClient(
+  process.env.USER_SERVICE_URL || "http://localhost:3001",
+);
+
+router.get("/health", async (req, res) => {
+  const r = await userClient.get("/health");
+  res.json({ gateway: true, userService: r.data });
+});
+
+module.exports = router;
+```
+
+---
+
+## 🧪 9) Healthcheck standartlari
+
+Har bir service’da:
+
+- `GET /health` — `200` qaytaradi
+- `service name`, `uptime`, `version` kabi info bo‘lishi mumkin
+
+Namuna:
+
+```js
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    service: "product-service",
+    uptime: process.uptime(),
+  });
+});
+```
+
+---
+
+## 🏁 10) Ishga tushirish: 3 xil yo‘l (eng ko‘p ishlatiladigan)
+
+### Variant A) Eng tez DEV: DBlar Dockerda, Servislar lokalda (PM2 yoki nodemon)
+
+1. DBlarni ko‘taring:
+
+```bash
+docker compose -f docker/docker-compose.dev.yml --env-file docker/.env.docker up -d
+```
+
+2. Root `.env` ni sozlang (local hostga ulangan):
+
+```env
+# localda service running bo'lsa
+MONGO_URI=mongodb://root:rootpass@localhost:27017/user_db?authSource=admin
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/order_db
+MYSQL_URL=mysql://app:apppass@localhost:3306/product_db
+```
+
+3. Dependency:
+
+```bash
+npm run setup
+```
+
+4. Migratsiyalar:
+
+```bash
+node services/order-service/scripts/migrate.js
+node services/product-service/scripts/migrate.js
+```
+
+5. PM2 bilan ishga tushiring:
+
+```bash
 pm2 start config/pm2/ecosystem.config.js
-
-echo "✅ All services started!"
-echo "📊 Run 'pm2 status' to check services"
-echo "📝 Run 'pm2 logs' to see logs"
-```
-
-### stop-all.sh
-
-```bash
-#!/bin/bash
-
-echo "🛑 Stopping all microservices..."
-
-pm2 stop all
-
-echo "✅ All services stopped!"
-```
-
-### restart-all.sh
-
-```bash
-#!/bin/bash
-
-echo "🔄 Restarting all microservices..."
-
-pm2 restart all
-
-echo "✅ All services restarted!"
-```
-
-### logs.sh
-
-```bash
-#!/bin/bash
-
 pm2 logs
 ```
 
 ---
 
-## 🗂️ .gitignore
+### Variant B) Full Docker (PRODga yaqin): hamma narsa containerlarda (PM2 runtime)
 
-```gitignore
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# PM2
-.pm2/
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Testing
-coverage/
-.nyc_output/
-
-# Build
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Temporary files
-tmp/
-temp/
+```bash
+docker compose -f docker/docker-compose.prod.yml --env-file docker/.env.docker up -d --build
+docker ps
 ```
 
 ---
 
-## 🎯 Asosiy Prinsiplar
+### Variant C) Umuman Docker ishlatmasdan (faqat local DB)
 
-### 1. Single Responsibility
+Agar DBlar ham lokal (masalan native Postgres) bo‘lsa:
 
-Har bir servis faqat bitta vazifani bajaradi
-
-### 2. Independent Deployment
-
-Servislar mustaqil ravishda deploy qilinadi
-
-### 3. Decentralized Data
-
-Har bir servis o'z database ga ega
-
-### 4. Communication Patterns
-
-- **Synchronous**: REST API (service-to-service)
-- **Asynchronous**: Message Queue (RabbitMQ/Redis)
-
-### 5. Fault Tolerance
-
-- Health check endpoints
-- Circuit breaker pattern
-- Retry logic
-- Graceful shutdown
+- `.env` — localhost
+- `npm run setup`
+- `pm2 start ...`
 
 ---
 
-## 📊 Port Configuration
+## 🧯 11) Troubleshooting (ko‘p uchraydigan muammolar)
 
-| Service              | Port | Description             |
-| -------------------- | ---- | ----------------------- |
-| API Gateway          | 3000 | Main entry point        |
-| User Service         | 3001 | User management         |
-| Product Service      | 3002 | Product catalog         |
-| Order Service        | 3003 | Order processing        |
-| Payment Service      | 3004 | Payment handling        |
-| Notification Service | 3005 | Email/SMS notifications |
+### 11.1) “ECONNREFUSED” (service DBga ulana olmayapti)
 
----
+- Dockerda DB port chiqyaptimi?
+  ```bash
+  docker ps
+  docker logs ms_postgres
+  ```
+- `.env` to‘g‘ri yozilganmi?
+  - Docker ichida `localhost` ishlamaydi. Containerlar o‘zaro **service nomi** bilan ulanadi: `postgres`, `mongo`, `mysql`.
 
-## 🔄 Service Communication Flow
+### 11.2) Postgres “database does not exist”
 
-```
-Client → API Gateway (3000)
-           ↓
-      ┌────┴────┐
-      ↓         ↓
-User Service  Product Service
-  (3001)        (3002)
-      ↓            ↓
-      └────┬───────┘
-           ↓
-     Order Service (3003)
-           ↓
-     Payment Service (3004)
-           ↓
-  Notification Service (3005)
+- DB yaratilmagan bo‘lishi mumkin: `POSTGRES_DB` yoki migration.
+
+### 11.3) MySQL “Access denied”
+
+- `MYSQL_USER / MYSQL_PASSWORD` mos kelmayapti.
+- URL misol:
+  `mysql://app:apppass@mysql:3306/product_db`
+
+### 11.4) PM2 loglar ko‘p bo‘lib ketdi
+
+```bash
+pm2 flush
 ```
 
 ---
 
-## 🛠️ Technology Stack
+## 🔐 12) Minimal .env.example (root)
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Process Manager**: PM2
-- **Database**: MongoDB / PostgreSQL
-- **Cache**: Redis (ixtiyoriy)
-- **Message Queue**: RabbitMQ / Redis Pub/Sub (ixtiyoriy)
-- **Authentication**: JWT
-- **Validation**: Joi / Yup
-- **Logging**: Winston
-- **Testing**: Jest, Supertest
+```env
+NODE_ENV=development
 
----
+# Gateway
+PORT=3000
+USER_SERVICE_URL=http://localhost:3001
+PRODUCT_SERVICE_URL=http://localhost:3002
+ORDER_SERVICE_URL=http://localhost:3003
+PAYMENT_SERVICE_URL=http://localhost:3004
 
-## 📚 Next Steps
+# Mongo
+MONGO_URI=mongodb://root:rootpass@localhost:27017/user_db?authSource=admin
 
-1. ✅ Clone qiling bu strukturani
-2. ✅ `npm run setup` - dependencies o'rnatish
-3. ✅ `.env` faylini sozlang
-4. ✅ Database o'rnating (MongoDB/PostgreSQL)
-5. ✅ `npm start` - barcha servislarni ishga tushiring
-6. ✅ Postman orqali test qiling
+# Postgres
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/order_db
+
+# MySQL (mysql2)
+MYSQL_URL=mysql://app:apppass@localhost:3306/product_db
+```
 
 ---
 
-## 📖 Additional Resources
+## ✅ 13) “One command” ishga tushirish (tavsiya)
 
-- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
-- [PM2 Documentation](https://pm2.keymetrics.io/)
-- [Express.js Guide](https://expressjs.com/)
-- [Microservices Patterns](https://microservices.io/patterns/index.html)
+**DEV** (DBlar docker, servislar pm2):
+
+```bash
+# 1) DB
+npm run docker:dev
+
+# 2) install
+npm run setup
+
+# 3) migrate
+node services/order-service/scripts/migrate.js
+node services/product-service/scripts/migrate.js
+
+# 4) pm2 start
+npm run pm2:start
+```
 
 ---
 
-**Muallif**: Oybek Abdujabborov  
-**Versiya**: 1.0.0  
-**Sana**: 2026-010-01  
+## 🎯 Yakuniy tavsiyalar (production mindset)
+
+- Har servis uchun:
+  - `SIGTERM` shutdown
+  - `/health`
+  - `.env.example`
+  - loglar (json format) + request-id
+- DB uchun:
+  - migration tizimi (kamida scripts)
+  - connection pool (pg/mysql2)
+- Gateway uchun:
+  - timeout, retry (ixtiyoriy)
+  - rate limit, auth middleware
+
+---
+
+**Muallif**: Oybek Abdujabborov
+**Versiya**: 1.1.0  
+**Sana**: 2026  
 **License**: MIT
-
----
-
-🎉 **Omad tilaymiz! Happy Coding!** 🚀
