@@ -2637,9 +2637,7 @@ kill -9 <PID>
 ## 📞 Support
 
 **Muallif:** Oybek Abdujabbrov  
-**Email:** your-email@example.com  
-**GitHub:** https://github.com/username  
-**LinkedIn:** https://linkedin.com/in/username
+**GitHub:** https://github.com/AbdujabborovOybek  
 
 ---
 
@@ -2651,4 +2649,4 @@ MIT License - Free to use for personal and commercial projects
 
 **🎉 Happy Coding! Omad tilaymiz! 🚀**
 
-**⭐ Agar foydali bo'lsa, GitHub da star bering!**
+**⭐ Agar foydali bo'lsa, GitHub da star bosing!**
