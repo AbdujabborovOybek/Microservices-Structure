@@ -2,11 +2,6 @@
 
 > **PM2 + Docker + MongoDB + PostgreSQL + MySQL2 - Mukammal Monorepo Arxitekturasi**
 
-**Muallif:** Oybek Abdujabbrov  
-**Versiya:** 2.0.0  
-**Sana:** 2026  
-**License:** MIT
-
 ---
 
 ## 📑 Mundarija
